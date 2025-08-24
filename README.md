@@ -24,7 +24,9 @@
 5. **Serve**
    - Create Synapse **Serverless SQL views** over `silver/` and `gold/`.
    - Connect Tableau Desktop (trial) to Synapse, or export CSV extracts for Tableau Public.
-     
+
+ ### Architecture Overview
+ 
 ```mermaid
 flowchart LR
  subgraph Sources["External / First‑party Sources"]
@@ -74,6 +76,7 @@ flowchart LR
     PIPE -. orchestrate .- SP & TR & INF
 
 ```
+### Medallion Architecture
 
 ``` mermaid
 flowchart LR
@@ -84,6 +87,22 @@ flowchart LR
 
     RAW --> BRONZE --> SILVER --> GOLD
 ```
+**Raw**: direct landing zone for CSV/ZIP as-is.
+
+**Bronze**: standardize column names, add ingest metadata, store as Parquet.
+
+**Silver**: dimensional model (orders, products, order_products, aisles, departments).
+
+**Gold**: aggregated features + ML predictions.
+
+### Machine Learning
+Features prepared in Synapse Spark → saved to gold/features/.
+
+Model training in Azure ML (e.g., XGBoost, Logistic Regression).
+
+Batch inference → results stored in gold/predictions/.
+
+### Data Model (ERD)
 ``` mermaid
 erDiagram
     ORDERS {
